@@ -3,8 +3,9 @@ const { PrivateKey } = require("bitcore-lib");
 const { mainnet, testnet } = require("bitcore-lib/lib/networks");
 const Mnemonic = require("bitcore-mnemonic");
 
-const createWallet = (network = mainnet) => {
+// Function to create a legacy wallet
 
+const createWallet = (network = mainnet) => {
   var privateKey = new PrivateKey();
   var address = privateKey.toAddress(network);
   return {
@@ -17,8 +18,8 @@ const createWallet = (network = mainnet) => {
 A Hierarchical Deterministic (HD) wallet is the term used to describe a wallet which uses a seed to derive public and private keys
 **/
 
-const createHDWallet = (network = mainnet) => {
-  let passPhrase = new Mnemonic(Mnemonic.Words.SPANISH);
+const createHDWallet = (network = testnet) => {
+  let passPhrase = new Mnemonic(Mnemonic.Words.ENGLISH);
   let xpriv = passPhrase.toHDPrivateKey(passPhrase.toString(), network);
 
   return {

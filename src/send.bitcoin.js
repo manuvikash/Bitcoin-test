@@ -1,20 +1,20 @@
 // sending bitcoin
 const axios = require("axios");
 const bitcore = require("bitcore-lib");
-const TESTNET = true
+const TESTNET = true;
 
 module.exports = sendBitcoin = async (recieverAddress, amountToSend) => {
   try {
     const privateKey =
-      "6756e6564d3c74b857d5800113f35878e5a854f2fce09c780265b94e53b6bc93";
-    const sourceAddress = "mvWqrftxCJa5eSKp229gkZbMf2XXrfZe9p";
+      "b89d465f626635dd6ef89df55a72b039f9399a7b3ff5ce5ac0f9babb6a058842";
+    const sourceAddress = "mpw43wXA5CvyY6xo3tZB4ysLhMnugBsxfj";
     const satoshiToSend = amountToSend * 100000000;
     let fee = 0;
     let inputCount = 0;
     let outputCount = 2;
 
     const recommendedFee = await axios.get(
-      "https://bitcoinfees.earn.com/api/v1/fees/recommended"
+      "https://mempool.space/api/v1/fees/recommended"
     );
 
     const transaction = new bitcore.Transaction();
@@ -22,15 +22,16 @@ module.exports = sendBitcoin = async (recieverAddress, amountToSend) => {
 
     let inputs = [];
     const resp = await axios({
-        method: "GET",
-        url: `https://blockstream.info/testnet/api/address/${sourceAddress}/utxo`,
+      method: "GET",
+      url: `https://blockstream.info/testnet/api/address/${sourceAddress}/utxo`,
     });
-    const utxos = resp.data
+    const utxos = resp.data;
 
     for (const utxo of utxos) {
       let input = {};
       input.satoshis = utxo.value;
-      input.script = bitcore.Script.buildPublicKeyHashOut(sourceAddress).toHex();
+      input.script =
+        bitcore.Script.buildPublicKeyHashOut(sourceAddress).toHex();
       input.address = sourceAddress;
       input.txId = utxo.txid;
       input.outputIndex = utxo.vout;
@@ -48,9 +49,9 @@ module.exports = sendBitcoin = async (recieverAddress, amountToSend) => {
     const transactionSize =
       inputCount * 180 + outputCount * 34 + 10 - inputCount;
 
-    fee = transactionSize * recommendedFee.data.hourFee / 3; // satoshi per byte
+    fee = (transactionSize * recommendedFee.data.hourFee) / 3; // satoshi per byte
     if (TESTNET) {
-      fee = transactionSize * 1 // 1 sat/byte is fine for testnet
+      fee = transactionSize * 1; // 1 sat/byte is fine for testnet
     }
     if (totalAmountAvailable - satoshiToSend - fee < 0) {
       throw new Error("Balance is too low for this transaction");
